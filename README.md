@@ -6,27 +6,69 @@
 
 ## 🧠 Project Overview
 
-NetScope is a **real-time network traffic monitoring and SIEM (Security Information and Event Management) system** designed to capture, analyze, and visualize network packets.
+**NetScope** is a **real-time network traffic monitoring and SIEM (Security Information and Event Management) system** that captures, analyzes, and visualizes network packets.
 
-It helps in:
+It simulates how real-world cybersecurity tools:
 
-* 📡 Monitoring live network traffic
-* 🧠 Mapping protocols to OSI layers
-* ⚠️ Detecting suspicious activities
-* 📊 Visualizing data in a dashboard
+* 📡 Monitor network traffic
+* 🔍 Analyze protocols
+* ⚠️ Detect suspicious activity
+* 📊 Provide actionable insights via dashboards
 
 ---
 
 ## 🔥 Key Features
 
-* 📡 **Real-Time Packet Capture** using Tshark
+* 📡 **Real-Time Packet Capture using Tshark (Wireshark CLI)**
 * 🧠 **Protocol Analysis & OSI Layer Mapping**
 * ⚠️ **Suspicious Traffic Detection**
-* 🔐 **JWT Authentication System**
+* 🔐 **JWT-Based Authentication System**
 * ☁️ **Cloud Database Integration (Supabase)**
-* 🚀 **Live Backend Deployment (Render)**
+* 🚀 **Backend Deployment on Render**
 * 🌐 **Frontend Dashboard (React + Vercel)**
 * 📊 **Live Charts & Traffic Statistics**
+
+---
+
+## 📡 Packet Capture Engine (Tshark)
+
+NetScope uses **Tshark (Wireshark CLI)** to capture live network packets.
+
+### 🔧 How It Works
+
+* Captures packets from network interface
+* Extracts:
+
+  * 🌐 Source IP
+  * 🌐 Destination IP
+  * 🔁 Protocol
+  * 🌍 Website (DNS/HTTP)
+
+---
+
+### ⚙️ Tshark Command
+
+```bash
+tshark -i <interface> -l -T fields \
+-e ip.src -e ip.dst -e _ws.col.Protocol \
+-e dns.qry.name -e http.host
+```
+
+---
+
+### 🔄 Data Flow
+
+```text
+Tshark → capture.js → Backend API → Supabase → Frontend Dashboard
+```
+
+---
+
+### ⚠️ Limitations
+
+* Requires admin/root access
+* Runs locally (not supported on cloud platforms)
+* Needs correct network interface configuration
 
 ---
 
@@ -58,14 +100,14 @@ Frontend Dashboard (Vercel)
 ### 🔹 Frontend
 
 * React.js
-* Recharts (Data Visualization)
+* Recharts (Charts)
 
 ### 🔹 Tools & Deployment
 
 * Tshark (Packet Capture)
-* Render (Backend Hosting)
-* Vercel (Frontend Hosting)
-* Supabase (Cloud Database)
+* Render (Backend)
+* Vercel (Frontend)
+* Supabase (Database)
 
 ---
 
@@ -73,20 +115,15 @@ Frontend Dashboard (Vercel)
 
 ### 1️⃣ Packet Capture
 
-* Tshark captures real-time packets from network interface
-* Extracts:
-
-  * Source IP 🌐
-  * Destination IP 🌐
-  * Protocol 🔁
-  * Website (DNS/HTTP)
+* Tshark captures live traffic
+* Extracts IPs, protocol, domain
 
 ---
 
 ### 2️⃣ Data Processing
 
-* Protocols normalized (HTTP, TCP, TLS)
-* OSI Layer mapping:
+* Protocol normalization (HTTP, TCP, TLS)
+* OSI Layer Mapping:
 
   * HTTP → Layer 7
   * TLS → Layer 6
@@ -96,32 +133,31 @@ Frontend Dashboard (Vercel)
 
 ### 3️⃣ Threat Detection ⚠️
 
-* HTTP traffic marked as suspicious
+* HTTP traffic flagged
 * Unknown protocols flagged
-* Suspicious flag stored in DB
+* Suspicious packets stored
 
 ---
 
 ### 4️⃣ Backend API
 
-* REST API built using Express.js
-* Routes:
+* Built with Express.js
+* Handles:
 
-  * `/packets` → store & fetch data
-  * `/packets/filter` → filter suspicious traffic
-  * `/packets/stats` → analytics
-  * `/login` → authentication
+  * Data storage
+  * Filtering
+  * Analytics
 
 ---
 
 ### 5️⃣ Database (Supabase)
 
-* PostgreSQL cloud database
+* PostgreSQL cloud DB
 * Stores:
 
-  * packet data
-  * protocol info
-  * threat flags
+  * Packet logs
+  * Protocol data
+  * Threat flags
 
 ---
 
@@ -129,9 +165,9 @@ Frontend Dashboard (Vercel)
 
 * Displays:
 
-  * 📊 Traffic statistics
+  * 📊 Statistics
   * 📡 Packet logs
-  * ⚠️ Suspicious alerts
+  * ⚠️ Alerts
 * Auto-refresh every 5 seconds
 
 ---
@@ -159,22 +195,22 @@ Frontend Dashboard (Vercel)
 ## 🔐 Security Features
 
 * 🔑 JWT Authentication
-* 🔒 Secure password hashing (bcrypt)
+* 🔒 Password hashing (bcrypt)
 * 🔐 Environment variables for secrets
-* ☁️ SSL-secured database connection
+* ☁️ SSL-secured DB connection
 
 ---
 
 ## 🚀 API Endpoints
 
-| Method | Endpoint        | Description     |
-| ------ | --------------- | --------------- |
-| POST   | /login          | User login      |
-| POST   | /register       | Register user   |
-| POST   | /packets        | Insert packet   |
-| GET    | /packets        | Get all packets |
-| GET    | /packets/filter | Filter packets  |
-| GET    | /packets/stats  | Get statistics  |
+| Method | Endpoint        | Description    |
+| ------ | --------------- | -------------- |
+| POST   | /login          | Login          |
+| POST   | /register       | Register       |
+| POST   | /packets        | Insert packet  |
+| GET    | /packets        | Get packets    |
+| GET    | /packets/filter | Filter traffic |
+| GET    | /packets/stats  | Statistics     |
 
 ---
 
@@ -213,7 +249,7 @@ SUPABASE_KEY=your_supabase_key
 
 * ⚙️ Full-stack development
 * 🔐 Secure backend design
-* ☁️ Cloud deployment (Render + Vercel)
+* ☁️ Cloud deployment
 * 🧠 Network traffic analysis
 * 📡 Packet inspection using Tshark
 * 🔍 Debugging real-world issues
@@ -224,9 +260,9 @@ SUPABASE_KEY=your_supabase_key
 
 This system simulates:
 
-* SIEM tools
+* SIEM platforms
 * Intrusion Detection Systems (IDS)
-* Network monitoring tools used in real companies
+* Network monitoring tools used in enterprises
 
 ---
 
@@ -245,8 +281,9 @@ This system simulates:
 
 ---
 
-## ⭐ If you like this project
+## ⭐ Support
 
-Give it a ⭐ on GitHub and support!
+If you like this project, give it a ⭐ on GitHub!
 
 ---
+
