@@ -1,12 +1,14 @@
 import React, { useEffect, useState } from "react";
 import { PieChart, Pie, Cell, Tooltip, Legend } from "recharts";
 
+// ✅ API URL (VERY IMPORTANT)
+const API_URL = process.env.REACT_APP_API_URL || "http://localhost:3000";
+
 function App() {
   const [packets, setPackets] = useState([]);
   const [stats, setStats] = useState({
     total_packets: 0,
-    suspicious_packets: 0,
-    http_packets: 0
+    suspicious_packets: 0
   });
 
   const [token, setToken] = useState(localStorage.getItem("token"));
@@ -14,24 +16,28 @@ function App() {
   const [password, setPassword] = useState("");
 
   // 🔐 LOGIN
-  const handleLogin = () => {
-    fetch("http://localhost:3000/login", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({ username, password })
-    })
-      .then(res => res.json())
-      .then(data => {
-        if (data.token) {
-          localStorage.setItem("token", data.token);
-          setToken(data.token);
-        } else {
-          alert("Login failed ❌");
-        }
-      })
-      .catch(err => console.error(err));
+  const handleLogin = async () => {
+    try {
+      const res = await fetch(`${API_URL}/login`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ username, password })
+      });
+
+      const data = await res.json();
+
+      if (data.token) {
+        localStorage.setItem("token", data.token);
+        setToken(data.token);
+      } else {
+        alert("Login failed ❌");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Server error");
+    }
   };
 
   // 🔓 LOGOUT
@@ -41,43 +47,40 @@ function App() {
   };
 
   // 🔹 Fetch packets
-  const fetchPackets = () => {
-    fetch("http://localhost:3000/packets", {
-      headers: {
-        Authorization: "Bearer " + token
-      }
-    })
-      .then(res => res.json())
-      .then(data => setPackets(data || []))
-      .catch(err => console.error(err));
+  const fetchPackets = async () => {
+    try {
+      const res = await fetch(`${API_URL}/packets`);
+      const data = await res.json();
+      setPackets(data || []);
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   // 🔹 Fetch suspicious
-  const fetchSuspicious = () => {
-    fetch("http://localhost:3000/packets/filter?suspicious=true", {
-      headers: {
-        Authorization: "Bearer " + token
-      }
-    })
-      .then(res => res.json())
-      .then(data => setPackets(data || []));
+  const fetchSuspicious = async () => {
+    try {
+      const res = await fetch(`${API_URL}/packets/filter?suspicious=true`);
+      const data = await res.json();
+      setPackets(data || []);
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   // 🔹 Fetch stats
-  const fetchStats = () => {
-    fetch("http://localhost:3000/packets/stats", {
-      headers: {
-        Authorization: "Bearer " + token
-      }
-    })
-      .then(res => res.json())
-      .then(data => setStats(data || {}));
+  const fetchStats = async () => {
+    try {
+      const res = await fetch(`${API_URL}/packets/stats`);
+      const data = await res.json();
+      setStats(data || {});
+    } catch (err) {
+      console.error(err);
+    }
   };
 
-  // 🔄 Auto refresh (only if logged in)
+  // 🔄 Auto refresh
   useEffect(() => {
-    if (!token) return;
-
     fetchPackets();
     fetchStats();
 
@@ -87,9 +90,9 @@ function App() {
     }, 5000);
 
     return () => clearInterval(interval);
-  }, [token]);
+  }, []);
 
-  // 📊 Chart data
+  // 📊 Chart
   const chartData = [
     {
       name: "Safe",
@@ -132,14 +135,13 @@ function App() {
   // 🚀 DASHBOARD
   return (
     <div style={{ padding: "20px", fontFamily: "Arial" }}>
-      
       <h1>🚀 NetScope Dashboard</h1>
 
       <button onClick={handleLogout} style={{ ...btnStyle, backgroundColor: "red" }}>
         Logout
       </button>
 
-      {/* 🔥 STATS */}
+      {/* STATS */}
       <div style={{ display: "flex", gap: "20px", marginBottom: "20px" }}>
         <div style={cardStyle}>
           <h3>Total Packets</h3>
@@ -150,23 +152,11 @@ function App() {
           <h3>Suspicious</h3>
           <p style={{ color: "red" }}>{stats.suspicious_packets}</p>
         </div>
-
-        <div style={cardStyle}>
-          <h3>HTTP Traffic</h3>
-          <p>{stats.http_packets}</p>
-        </div>
       </div>
 
-      {/* 📊 CHART */}
+      {/* CHART */}
       <PieChart width={400} height={300}>
-        <Pie
-          data={chartData}
-          dataKey="value"
-          cx="50%"
-          cy="50%"
-          outerRadius={100}
-          label
-        >
+        <Pie data={chartData} dataKey="value" cx="50%" cy="50%" outerRadius={100} label>
           <Cell fill="green" />
           <Cell fill="red" />
         </Pie>
@@ -174,15 +164,15 @@ function App() {
         <Legend />
       </PieChart>
 
-      {/* 🔘 BUTTONS */}
-      <div style={{ marginBottom: "20px" }}>
+      {/* BUTTONS */}
+      <div>
         <button onClick={fetchPackets} style={btnStyle}>All Traffic</button>
         <button onClick={fetchSuspicious} style={btnStyle}>
           Suspicious Only ⚠️
         </button>
       </div>
 
-      {/* 📋 TABLE */}
+      {/* TABLE */}
       <table border="1" cellPadding="10" style={{ width: "100%" }}>
         <thead>
           <tr>
@@ -191,7 +181,6 @@ function App() {
             <th>Destination IP</th>
             <th>Protocol</th>
             <th>OSI Layer</th>
-            <th>Website 🌐</th>
             <th>Status</th>
           </tr>
         </thead>
@@ -204,7 +193,6 @@ function App() {
               <td>{packet.destination_ip}</td>
               <td>{packet.protocol}</td>
               <td>{packet.osi_layer}</td>
-              <td>{packet.website || "—"}</td>
               <td>
                 {packet.is_suspicious ? "⚠️ Suspicious" : "✅ Safe"}
               </td>
@@ -212,7 +200,6 @@ function App() {
           ))}
         </tbody>
       </table>
-
     </div>
   );
 }
