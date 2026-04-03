@@ -2,8 +2,6 @@
 <img width="956" height="382" alt="dashborad2" src="https://github.com/user-attachments/assets/a9fc5291-177a-41b6-b8d9-642d3fbcbcc3" />
 # 🚀 NetScope: Real-Time Network Traffic Monitoring & SIEM System
 
-![CI](https://github.com/YOUR_USERNAME/YOUR_REPO/actions/workflows/main.yml/badge.svg)
-
 ---
 
 ## 🧠 Project Overview
